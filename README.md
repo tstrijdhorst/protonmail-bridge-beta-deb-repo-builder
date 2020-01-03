@@ -18,13 +18,15 @@ Because installing packages from my email is not my preferred way of installing 
 3. Make sure the public key is imported into apt:
 
     ```
-    gpg --list ProtonmailRepoSignKey```
+    gpg --list ProtonmailRepoSignKey
     gpg -a --export *FILL IN YOUR KEY ID* | sudo apt-key add -
    ```
 4. Add the local repo to your apt by appending `deb file:/your/repo/path/repo ./` to `/etc/apt/sources.list`
 5. Run `update.php ProtonMailRepoSignKey`
 
 You should now be able to do install / update the `protonmail-bridge` as you would do with any other apt repo.
+
+*(hint: running it automatically via CRON or system startup might be preferred but I don't have to tell you that right?)*
 
 ## Caveats
 
