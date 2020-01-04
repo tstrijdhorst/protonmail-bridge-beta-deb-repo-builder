@@ -9,7 +9,8 @@ if ($argc < 2) {
 }
 $gpgSignKeyUser = escapeshellarg($argv[1]);
 
-preg_match('/source=\("(.*)"\)/', file_get_contents(PKGBUILD_URL), $matches);
+$PKGBUILDFile = file_get_contents(PKGBUILD_URL);
+preg_match('/source=\("(.*)"\)/', $PKGBUILDFile, $matches);
 if (count($matches) < 2) {
 	throw new Exception('PKGBUILD file is corrupted');
 }
@@ -30,6 +31,20 @@ echo 'Downloading: '.$latestDebFileURL.PHP_EOL;
 file_put_contents($latestDebFilePath, fopen($latestDebFileURL, 'r'));
 
 echo 'Download finished'.PHP_EOL;
+
+echo 'Calculating and comparing checksum'.PHP_EOL;
+unset($matches);
+preg_match('/sha256sums=\("(.*)"\)/', $PKGBUILDFile, $matches);
+if (count($matches) < 2) {
+	throw new Exception('PKGBUILD file is corrupted');
+}
+
+$checksumSHA256 = $matches[1];
+if (hash_file( 'sha256', $latestDebFilePath) !== $checksumSHA256) {
+	unlink($latestDebFilePath);
+	throw new Exception('Checksum does not match');
+}
+echo 'Checksum matches'.PHP_EOL;
 
 echo 'Updating local apt repo'.PHP_EOL;
 chdir(REPO_DIR);
